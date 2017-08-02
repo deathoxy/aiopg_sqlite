@@ -23,3 +23,20 @@ Usage:
             async for row in conn.execute('select * from t1'):
                 assert row.c1 in inserted
 ```
+
+In aiohttp for testing purposes:
+
+```
+async def init_db(app):
+    is_testing = os.environ.get('TESTING')
+    if is_testing:
+        connection_factory = aiopg_sqlite.create_engine
+    else:
+        connection_factory = aiopg.sa.create_engine
+    conn_params = {'uri': 'connection_uri', echo=True}  # read it from config file or something
+    app['db'] = await connection_factory(**conn_params, loop=app.loop)
+    
+        
+app = aiohttp.web.Application()
+app.on_startup.append(init_db)
+```
